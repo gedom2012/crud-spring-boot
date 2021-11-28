@@ -19,22 +19,22 @@ public class ResourceExceptionHandler {
 	public ResponseEntity<StandardError> entityNotFound(ResourceNotFoundException e, HttpServletRequest request) {
 		HttpStatus status = HttpStatus.NOT_FOUND;
 		return ResponseEntity.status(status)
-				.body(setError(status, request, "Resource not found."));
+				.body(setError(status, e.getMessage(), request, "Resource not found."));
 	}
 
 	@ExceptionHandler(DataBaseException.class)
 	public ResponseEntity<StandardError> dataBase(DataBaseException e, HttpServletRequest request) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		return ResponseEntity.status(status)
-				.body(setError(status, request, "Integrity Violation."));
+				.body(setError(status, e.getMessage(), request, "Integrity Violation."));
 	}
 
-	private StandardError setError(HttpStatus status, HttpServletRequest request, String errorMessage) {
+	private StandardError setError(HttpStatus status, String errorFromMessage, HttpServletRequest request, String message) {
 		StandardError error = new StandardError();
 		error.setTimesTamp(Instant.now());
 		error.setStatus(status.value());
-		error.setError(errorMessage);
-		error.setMessage(error.getMessage());
+		error.setError(message);
+		error.setMessage(errorFromMessage);
 		error.setPath(request.getRequestURI());
 		return error;
 	}
