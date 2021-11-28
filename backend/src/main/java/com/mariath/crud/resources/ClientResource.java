@@ -1,4 +1,4 @@
-package com.mariath.crud.resource;
+package com.mariath.crud.resources;
 
 import java.net.URI;
 
