@@ -1,6 +1,9 @@
 package com.mariath.crud.services;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -9,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mariath.crud.DTO.ClientDTO;
 import com.mariath.crud.entities.Client;
 import com.mariath.crud.repositories.ClientRepository;
+import com.mariath.crud.services.exceptions.DataBaseException;
+import com.mariath.crud.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class ClientService {
@@ -24,8 +29,13 @@ public class ClientService {
 
 	@Transactional(readOnly = true)
 	public ClientDTO findById(Long id) {
-		Client entity = repository.getOne(id);
-		return new ClientDTO(entity);
+		try {
+			Client entity = repository.getOne(id);
+			return new ClientDTO(entity);
+		} catch(EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Resource not found " + id);
+		}
+
 	}
 
 	@Transactional
@@ -38,17 +48,27 @@ public class ClientService {
 
 	@Transactional
 	public ClientDTO update(Long id, ClientDTO clientDto) {
-		Client entity = repository.getOne(id);
-		copyToDtoEntity(clientDto, entity);
-		repository.save(entity);
-		return new ClientDTO(entity);
+		try {
+			Client entity = repository.getOne(id);
+			copyToDtoEntity(clientDto, entity);
+			repository.save(entity);
+			return new ClientDTO(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Resource not found " + id);
+		}
+
 
 	}
 	
 	@Transactional
 	public void delete(Long id) {
-		Client entity = repository.getOne(id);
-		repository.delete(entity);
+		try {
+			Client entity = repository.getOne(id);
+			repository.delete(entity);
+		} catch(DataIntegrityViolationException e) {
+			throw new DataBaseException("Integrity violation");
+		}
+
 	}
 
 	private void copyToDtoEntity(ClientDTO clientDto, Client entity) {
