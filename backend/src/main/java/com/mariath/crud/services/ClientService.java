@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +23,8 @@ public class ClientService {
 	private ClientRepository repository;
 
 	@Transactional(readOnly = true)
-	public Page<ClientDTO> findAllPaged(PageRequest request) {
-		Page<Client> entity = repository.findAll(request);
+	public Page<ClientDTO> findAllPaged(Pageable pageable) {
+		Page<Client> entity = repository.findAll(pageable);
 		return entity.map(x -> new ClientDTO(x));
 	}
 
